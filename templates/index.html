@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Script Generator</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Video Script Generator</h1>
+            <p>Welcome to the Video Script Generator. Enter your video idea in the form below, and we'll generate a script for you.</p>
+        </div>
+        <div class="content">
+            <form id="script-form">
+                <label for="video-idea">Enter your video idea:</label>
+                <input type="text" id="video-idea" name="video-idea">
+                <button type="submit">Generate Script</button>
+            </form>
+            <div id="script-output"></div>
+            <div class="navigation">
+                <button id="prev-button">Previous</button>
+                <button id="next-button">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let responses = [];
+
+        document.getElementById('script-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const videoIdea = document.getElementById('video-idea').value;
+            const response = await fetch('/generate-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ video_idea: videoIdea }),
+            });
+            const data = await response.json();
+            responses.push(data.script);
+            displayScript();
+        });
+
+        document.getElementById('prev-button').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayScript();
+            }
+        });
+
+        document.getElementById('next-button').addEventListener('click', () => {
+            if (currentIndex < responses.length - 1) {
+                currentIndex++;
+                displayScript();
+            }
+        });
+
+        function displayScript() {
+            const scriptOutput = document.getElementById('script-output');
+            scriptOutput.innerText = responses[currentIndex];
+        }
+    </script>
+</body>
+</html>
